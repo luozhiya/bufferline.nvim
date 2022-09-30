@@ -98,6 +98,12 @@ local function bufferline()
   components = not is_tabline and groups.render(components, sorter) or sorter(components)
   local tabline = ui.tabline(components, tabpages.get())
 
+  -- if tabline ~= nil then
+  --   print("tabline: >>")
+  --   utils.xdump(tabline, 3)
+  --   print("tabline: <<")
+  -- end
+
   state.set({
     --- store the full unfiltered lists
     __components = components,

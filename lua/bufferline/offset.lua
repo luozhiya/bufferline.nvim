@@ -160,12 +160,18 @@ function M.get()
           local component = get_section_text(width, { text = hl, sep = sep_hl }, offset, is_left)
 
           total_size = total_size + width
+          -- print("total_size: " .. total_size)
 
           if is_left then
             left, left_size = component, left_size + width
           else
             right, right_size = component, right_size + width
           end
+
+          -- print("left: " .. left)
+          -- print("left_size: " .. left_size)
+          -- print("right: " .. right)
+          -- print("right_size: " .. right_size)
         end
       end
     end

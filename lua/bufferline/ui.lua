@@ -704,6 +704,25 @@ function M.tabline(items, tab_indicators)
     - tab_close_button_length
 
   local before, current, after = get_sections(items)
+  -- if before ~= nil then
+  --   print("before: >>")
+  --   utils.xdump(before)
+  --   print("before: <<")
+  -- end
+  -- if current ~= nil then
+  --   print("current: >>")
+  --   utils.xdump(current)
+  --   print("current: <<")
+  -- end  
+  -- if after ~= nil then
+  --   print("after: >>")
+  --   utils.xdump(after)
+  --   print("after: <<")
+  -- end
+  -- if available_width ~= nil then
+  --   print("available_width: -" .. available_width .. "-")
+  -- end  
+
   local segments, marker, visible_components = truncate(before, current, after, available_width, {
     left_count = 0,
     right_count = 0,
@@ -714,6 +733,22 @@ function M.tabline(items, tab_indicators)
   local fill = hl.fill.hl_group
   local left_marker = get_trunc_marker(left_trunc_icon, fill, fill, marker.left_count)
   local right_marker = get_trunc_marker(right_trunc_icon, fill, fill, marker.right_count)
+
+  -- if left_marker ~= nil then
+  --   print("left_marker: -" .. left_marker .. "-")
+  -- end
+
+  -- if segments ~= nil then
+  --   print("segments: >>")
+  --   utils.xdump(segments)
+  --   print("segments: <<")
+  -- end
+
+  -- if visible_components ~= nil then
+  --   print("visible_components: >>")
+  --   utils.xdump(visible_components)
+  --   print("visible_components: <<")
+  -- end  
 
   local core = join(
     utils.merge_lists(
@@ -728,7 +763,17 @@ function M.tabline(items, tab_indicators)
   --- NOTE: the custom areas are essentially mini tablines a user can define so they can't
   -- be set safely converted to segments so they are concatenated to string and join with
   -- the rest of the tabline
-  local tabline = utils.join(offsets.left, left_area, core, right_area, offsets.right)
+  -- print("offsets.left: " .. offsets.left)
+  -- print("left_area: -" .. left_area .. "-")
+  -- print("core: -" .. core .. "-")
+  local appendx
+  if string.len(offsets.left) > 0 then
+    offsets.left = string.sub(offsets.left, 0, string.len(offsets.left)-1)
+    appendx = '%#BufferlineSelected# '
+  end
+
+  local tabline = utils.join(offsets.left, appendx, left_area, core, right_area, offsets.right)
+  -- print("tabline: " .. tabline)
 
   local left_offset_size = offsets.left_size + statusline_str_width(left_area)
   local left_marker_size = left_marker and get_component_size(left_marker) or 0
