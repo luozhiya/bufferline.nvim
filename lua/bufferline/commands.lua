@@ -45,15 +45,6 @@ local function open_element(id)
   end
 end
 
----@param id number
-local function delete_element(id)
-  if config:is_tabline() then
-    vim.cmd("tabclose " .. id)
-  else
-    api.nvim_buf_delete(id, { force = true })
-  end
-end
-
 ---Get the current element i.e. tab or buffer
 ---@return number
 local function get_current_element()
@@ -69,21 +60,34 @@ local function handle_user_command(command, id)
   if type(command) == "function" then
     command(id)
   elseif type(command) == "string" then
-    vim.cmd(fmt(command, id))
+    -- Fix #574 without the scheduling the command the tabline does not refresh correctly
+    vim.schedule(function()
+      vim.cmd(fmt(command, id))
+      ui.refresh()
+    end)
   end
 end
 
 ---@param position number
-function M.handle_group_click(position)
+local function handle_group_click(position)
   groups.toggle_hidden(position)
   ui.refresh()
 end
 
 ---@param id number
-function M.handle_close(id)
+local function handle_close(id)
   local options = config.options
   local close = options.close_command
   handle_user_command(close, id)
+end
+
+---@param id number
+local function delete_element(id)
+  if config:is_tabline() then
+    vim.cmd("tabclose " .. id)
+  else
+    handle_close(id)
+  end
 end
 
 ---@param id number
@@ -100,7 +104,7 @@ local cmds = {
 ---Handler for each type of mouse click
 ---@param id number
 ---@param button string
-function M.handle_click(id, button)
+local function handle_click(id, _, button)
   local options = config.options
   if id then handle_user_command(options[cmds[button]], id) end
 end
@@ -116,7 +120,7 @@ end
 function M.pick() pick.choose_then(open_element) end
 
 function M.close_with_pick()
-  pick.choose_then(function(id) M.handle_close(id) end)
+  pick.choose_then(function(id) handle_close(id) end)
 end
 
 --- Open a element based on it's visible position in the list
@@ -185,6 +189,16 @@ function M.cycle(direction)
   open_element(item.id)
 end
 
+function M.get_elements()
+  return {
+    mode = config.options.mode,
+    elements = vim.tbl_map(
+      function(elem) return { id = elem.id, name = elem.name, path = elem.path } end,
+      state.components
+    ),
+  }
+end
+
 ---@alias Direction "'left'" | "'right'"
 ---Close all elements to the left or right of the current buffer
 ---@param direction Direction
@@ -201,6 +215,7 @@ function M.close_in_direction(direction)
       delete_element(item.id)
     end
   end
+  ui.refresh()
 end
 
 --- sorts all elements
@@ -215,5 +230,9 @@ function M.sort_by(sort_by)
   if opts.persist_buffer_sort then save_positions(state.custom_sort) end
   ui.refresh()
 end
+
+_G.___bufferline_private.handle_close = handle_close
+_G.___bufferline_private.handle_click = handle_click
+_G.___bufferline_private.handle_group_click = handle_group_click
 
 return M

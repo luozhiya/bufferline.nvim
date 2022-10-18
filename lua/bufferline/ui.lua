@@ -163,10 +163,8 @@ end
 ---@param id number
 ---@param component Segment
 function M.make_clickable(func_name, id, component)
-  -- v:lua does not support function references in vimscript so
-  -- the only way to implement this is using autoload vimscript functions
   component.attr = component.attr or {}
-  component.attr.prefix = "%" .. id .. "@nvim_bufferline#" .. func_name .. "@"
+  component.attr.prefix = "%" .. id .. "@v:lua.___bufferline_private." .. func_name .. "@"
   -- the %X works as a closing label. @see :h tabline
   component.attr.suffix = "%X"
   return component
@@ -292,13 +290,17 @@ end
 --- @return Segment?
 local function get_close_icon(buf_id, context)
   local options = config.options
-  if options.hover.enabled and vim.tbl_contains(options.hover.reveal, "close") then
+  if
+    options.hover.enabled
+    and not context.tab:current()
+    and vim.tbl_contains(options.hover.reveal, "close")
+  then
     if not state.hovered or state.hovered.id ~= context.tab.id then return end
   end
   local buffer_close_icon = options.buffer_close_icon
   local close_button_hl = context.current_highlights.close_button
   if not options.show_buffer_close_icons then return end
-  return M.make_clickable("handle_close_buffer", buf_id, {
+  return M.make_clickable("handle_close", buf_id, {
     text = buffer_close_icon,
     highlight = close_button_hl,
   })
