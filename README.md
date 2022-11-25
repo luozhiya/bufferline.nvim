@@ -53,13 +53,13 @@ If you'd like to use an older version of the plugin compatible with nvim-0.6.1 a
 
 ```lua
 -- using packer.nvim
-use {'akinsho/bufferline.nvim', tag = "v3.*", requires = 'kyazdani42/nvim-web-devicons'}
+use {'akinsho/bufferline.nvim', tag = "v3.*", requires = 'nvim-tree/nvim-web-devicons'}
 ```
 
 **Vimscript**
 
 ```vim
-Plug 'kyazdani42/nvim-web-devicons' " Recommended (for coloured icons)
+Plug 'nvim-tree/nvim-web-devicons' " Recommended (for coloured icons)
 " Plug 'ryanoasis/vim-devicons' Icons without colours
 Plug 'akinsho/bufferline.nvim', { 'tag': 'v3.*' }
 ```
@@ -141,7 +141,6 @@ it has a lot of the same features/styling but not all.
 
 A few things to note are
 
-- Diagnostics only show if the buffer with issues is the current window selected in that tab page
 - Sorting doesn't work yet as that needs to be thought through.
 - Grouping doesn't work yet as that also needs to be thought through.
 
